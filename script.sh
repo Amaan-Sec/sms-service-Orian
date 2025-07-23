@@ -3,8 +3,43 @@
 LOG_FILE="/var/ossec/logs/integrations_sms_monitor.log"
 ALERTS_JSON="/var/ossec/logs/alerts/alerts.json"
 
+# --- OpenSearch Dynamic Recipient Fetch ---
+OPENSEARCH_HOST="http://192.168.1.12:9200"
+OPENSEARCH_INDEX="users"
+ROLE_FILTER="administrator"
+
+# Ensure log file exists
+touch "$LOG_FILE"
+
+# Fetch phone numbers from OpenSearch
+RESPONSE=$(curl -s -X POST "$OPENSEARCH_HOST/$OPENSEARCH_INDEX/_search" \
+  -H 'Content-Type: application/json' -d "
+{
+  \"_source\": [\"phone\"],
+  \"query\": {
+    \"match\": {
+      \"role\": \"$ROLE_FILTER\"
+    }
+  },
+  \"size\": 1000
+}")
+
+PHONES=($(echo "$RESPONSE" | jq -r '.hits.hits[]._source.phone'))
+
+# Clean numbers
+RECIPIENTS=()
+for MOBILE in "${PHONES[@]}"; do
+  CLEANED=$(echo "$MOBILE" | sed 's/[^0-9]//g')
+  if [[ "$CLEANED" =~ ^[6-9][0-9]{9}$ ]]; then
+    RECIPIENTS+=("91$CLEANED")
+  elif [[ "$CLEANED" =~ ^91[6-9][0-9]{9}$ ]]; then
+    RECIPIENTS+=("$CLEANED")
+  else
+    echo "$(date) | Skipped invalid phone: $MOBILE" >> "$LOG_FILE"
+  fi
+done
+
 # --- SMS CONFIGURATION ---
-RECIPIENTS=("919669288387" "919103283623")
 USER="VGVPAY"
 PASSWORD="abc123"
 SENDER_ID="VGVPAY"
@@ -15,29 +50,21 @@ CHANNEL="Trans"
 DCS="0"
 FLASH="0"
 
-# Ensure log file exists
-touch "$LOG_FILE"
-
 # Start tailing alerts.json
 tail -n0 -F "$ALERTS_JSON" | while read -r line; do
   [[ -z "$line" ]] && continue
 
-  # Extract fields safely using jq
   LEVEL=$(echo "$line" | jq -r '.rule.level // empty')
   HOST=$(echo "$line" | jq -r '.agent.name // empty')
   TIME=$(echo "$line" | jq -r '.timestamp // empty')
   RULE_DESC=$(echo "$line" | jq -r '.rule.description // empty')
 
-  # Debug log
   echo "$(date) | LEVEL=$LEVEL | HOST=$HOST | TIME=$TIME | RULE=$RULE_DESC" >> "$LOG_FILE"
 
-  # Only alert if LEVEL >= 3
   if [[ "$LEVEL" =~ ^[0-9]+$ && "$LEVEL" -ge 3 ]]; then
     SHORT_HOST=$(echo "$HOST" | cut -c1-40)
     SHORT_TIME=$(echo "$TIME" | cut -c1-30)
     VAR_MSG="$LEVEL on $SHORT_HOST at $SHORT_TIME"
-
-    # Ensure DLT length limit safety (typically 50 chars for one var)
     VAR_MSG=$(echo "$VAR_MSG" | cut -c1-50)
 
     for MOBILE in "${RECIPIENTS[@]}"; do
