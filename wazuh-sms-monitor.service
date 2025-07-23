@@ -1,13 +1,15 @@
 [Unit]
-Description=Wazuh SMS Alert Monitor Service
-After=network.target wazuh-manager.service
-Requires=wazuh-manager.service
+Description=Wazuh SMS Alert Monitor Service (custom script)
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 ExecStart=/var/ossec/active-response/bin/custom
 Restart=always
 RestartSec=5
+StandardOutput=null
+StandardError=journal
 User=root
 
 [Install]
