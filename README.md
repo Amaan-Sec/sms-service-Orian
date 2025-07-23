@@ -29,21 +29,23 @@ chmod +x /var/ossec/active-response/bin/custom
 ```
 2. Create Systemd Service
 ```
-cat <<EOF > /etc/systemd/system/wazuh-sms-monitor.service
 [Unit]
-Description=Wazuh SMS Alert Monitor
-After=network.target
+Description=Wazuh SMS Alert Monitor Service (custom script)
+After=network-online.target
+Wants=network-online.target
 
 [Service]
 Type=simple
 ExecStart=/var/ossec/active-response/bin/custom
 Restart=always
 RestartSec=5
+StandardOutput=null
+StandardError=journal
 User=root
 
 [Install]
 WantedBy=multi-user.target
-EOF
+
 ```
 3. Enable and Start the Service
 ```
