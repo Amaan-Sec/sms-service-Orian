@@ -1,19 +1,7 @@
-# sms-service
-smsc integration through service creation 
+# 📡 Wazuh SMS Alert Integration (via OrainTele SMS API)
 
-0. Create the script
+This integration continuously monitors Wazuh alerts (`alerts.json`) and sends **SMS notifications** in real time to designated mobile numbers when alerts of **level ≥ 3** are detected.
 
-1. Make it executable
-chmod +x /var/ossec/active-response/bin/custom
+> ✅ Uses vendor DLT format: `ALERT {#var#}: Unusual system access detected. Immediate review needed. from: CyberSentinel`
 
-2. Ensure your systemd unit is using this script
-Check /etc/systemd/system/wazuh-sms-monitor.service:
-
-3. Start and use Service
-sudo systemctl daemon-reexec
-sudo systemctl daemon-reload
-sudo systemctl enable wazuh-sms-monitor.service
-sudo systemctl restart wazuh-sms-monitor.service
-
-You should see a proper SMS dispatch with the VAR_MSG filled correctly and a "Response" line from the SMS API.
-
+... [TRUNCATED TO FIT MESSAGE LIMIT] ...
