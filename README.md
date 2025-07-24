@@ -1,15 +1,15 @@
-# 📡 Wazuh SMS Alert Integration (via OrainTele SMS API)
+# Wazuh SMS Alert Integration (via OrainTele SMS API)
 
 This integration continuously monitors Wazuh alerts (`alerts.json`) and sends **SMS notifications** in real time to designated mobile numbers when alerts of **level ≥ 3** are detected.
 
-📦 Prerequisites
+Prerequisites
 Ensure the following are installed:
 ```
 apt update
 apt install jq curl -y
 ```
-⚙️ Configuration
-🔧 Script Variables
+Configuration
+Script Variables
 ```
 Edit inside the script /var/ossec/active-response/bin/custom:
 ```
@@ -21,7 +21,7 @@ SENDER_ID="VGVPAY"
 PE_ID="1001297681151040166"
 TEMPLATE_ID="1007195263819725513"
 ```
-🛠️ Setup Instructions
+Setup Instructions
 1. Place and Make Executable
 ```
 cp custom /var/ossec/active-response/bin/custom
@@ -54,12 +54,12 @@ systemctl daemon-reload
 systemctl enable wazuh-sms-monitor.service
 systemctl start wazuh-sms-monitor.service
 ```
-🧪 Testing
-✅ Simulate an Alert:
+Testing
+Simulate an Alert:
 ```
 echo '{"rule":{"level":5,"description":"SSH brute force detected"},"agent":{"name":"foreman.vgipl.com"},"timestamp":"2025-07-21T16:45:00Z"}' >> /var/ossec/logs/alerts/alerts.json
 ```
-✅ Verify Log Output:
+Verify Log Output:
 ```
 tail -f /var/ossec/logs/integrations_sms_monitor.log
 ```
@@ -74,13 +74,13 @@ And receive:
 ```
 ALERT 5 on foreman.vgipl.com at 2025-07-21T16:45:00Z: Unusual system access detected. Immediate review needed. from: CyberSentinel
 ```
-📜 Log Location
+Log Location
 All runtime activity and SMS responses are logged here:
 
 ```
 /var/ossec/logs/integrations_sms_monitor.log
 ```
-📶 DLT Template Compliance
+DLT Template Compliance
 The script ensures:
 
 Max length of {#var#} ≤ 50 characters
@@ -95,7 +95,7 @@ DLT Template Used:
 ALERT {#var#}: Unusual system access detected. Immediate review needed. from: CyberSentinel
 ```
 
-📁 File Summary
+File Summary
 Path	Description
 ```
 /var/ossec/active-response/bin/custom	Main alert monitor script
