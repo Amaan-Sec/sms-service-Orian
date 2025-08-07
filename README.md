@@ -24,8 +24,8 @@ TEMPLATE_ID="1007195263819725513"
 Setup Instructions
 1. Place and Make Executable
 ```
-cp custom /var/ossec/active-response/bin/custom
-chmod +x /var/ossec/active-response/bin/custom
+cp custom.sh /var/ossec/active-response/bin/custom.sh
+chmod +x /var/ossec/active-response/bin/custom.sh
 ```
 2. Create Systemd Service
 ```
@@ -36,7 +36,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-ExecStart=/var/ossec/active-response/bin/custom
+ExecStart=/var/ossec/active-response/bin/custom.sh
 Restart=always
 RestartSec=5
 StandardOutput=null
@@ -98,7 +98,7 @@ ALERT {#var#}: Unusual system access detected. Immediate review needed. from: Cy
 File Summary
 Path	Description
 ```
-/var/ossec/active-response/bin/custom	Main alert monitor script
+/var/ossec/active-response/bin/custom.sh	Main alert monitor script
 /var/ossec/logs/alerts/alerts.json	Live alert feed from Wazuh
 /var/ossec/logs/integrations_sms_monitor.log	Log file for SMS integration
 /etc/systemd/system/wazuh-sms-monitor.service	Persistent systemd service
